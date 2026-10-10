@@ -1,3 +1,10 @@
 {
-  "editions": []
+  "editions": [
+    {
+      "date": "2026-10-11",
+      "title": "OpsWeek edition · 2026-10-11",
+      "html": "newsletters/2026-10-11/index.html",
+      "pdf": "newsletters/2026-10-11/newsletter.pdf"
+    }
+  ]
 }
