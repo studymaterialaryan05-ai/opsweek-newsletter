@@ -1,0 +1,90 @@
+name: OpsWeek Weekly Newsletter
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Generate and validate without emailing (recommended for first test)"
+        required: true
+        default: true
+        type: boolean
+  schedule:
+    - cron: "30 2 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: opsweek-newsletter
+  cancel-in-progress: false
+
+jobs:
+  build-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Chromium for PDF generation
+        run: npx playwright install --with-deps chromium
+
+      - name: Configure dry-run mode
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.dry_run }}" == "true" ]]; then
+            echo "DRY_RUN=true" >> "$GITHUB_ENV"
+          else
+            echo "DRY_RUN=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Generate and validate newsletter
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          RSS_FEEDS: ${{ vars.RSS_FEEDS }}
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          TEST_EMAIL_TO: ${{ secrets.TEST_EMAIL_TO }}
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        run: npm start
+
+      - name: Build archive index
+        if: success()
+        run: npm run build:site
+
+      - name: Commit newsletter edition and archive
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add newsletters archive.json .delivery-state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish OpsWeek edition"
+            git push
+          else
+            echo "No generated changes to commit."
+          fi
+
+      - name: Upload newsletter artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opsweek-newsletter-${{ github.run_number }}
+          path: |
+            newsletters/
+          if-no-files-found: ignore
+          retention-days: 30
