@@ -19,7 +19,7 @@ export function renderNewsletter(data, period, visualAssets = {}) {
   const photoFigure = (photo, className = "editorial-photo") => photo ? `<figure class="${className}"><img src="${esc(photo.imageUrl)}" alt="${esc(photo.alt)}" loading="eager"><figcaption>${photoAttribution(photo)}</figcaption></figure>` : "";
   const pageOne = stories.slice(0, 4);
   const pageTwo = stories.slice(4, 7);
-  const storyCard = s => `<article class="story"><div class="kicker">${esc(s.region)} · ${esc(s.concept)}</div><h3>${esc(s.title)}</h3><p class="summary">${esc(s.summary)}</p><p><b>Operations lens:</b> ${esc(s.operationalIssue)}</p><p class="lesson"><b>Manager's takeaway:</b> ${esc(s.lesson)}</p><p class="source"><a href="${esc(s.url)}">${esc(s.source)} · ${shortDate(s.publishedAt)} · Read source ↗</a></p></article>`;
+  const storyCard = s => `<article class="story"><div class="kicker">${esc(s.region)} · ${esc(s.concept)}</div><h3>${esc(s.title)}</h3><p class="summary">${esc(s.summary)}</p><p><b>Operations lens:</b> ${esc(s.operationalIssue)}</p><p><b>Mechanisms to investigate:</b> ${(s.mechanisms || []).slice(0,2).map(esc).join(" ")}</p><p><b>Metrics to watch:</b> ${(s.metricsToWatch || []).slice(0,3).map(esc).join(" · ")}</p><p><b>Manager actions:</b> ${(s.managerActions || []).slice(0,2).map(esc).join(" ")}</p><p class="muted"><b>Evidence:</b> ${esc(s.evidenceNote || "")}</p><p class="lesson"><b>Manager's takeaway:</b> ${esc(s.lesson)}</p><p class="source"><a href="${esc(s.url)}">${esc(s.source)} · ${shortDate(s.publishedAt)} · Read source ↗</a></p></article>`;
   const concept = data.concept || {};
   const branches = [
     ["CAUSES", concept.causes],["CONSEQUENCES", concept.consequences],["INTERVENTIONS", concept.interventions]
@@ -81,7 +81,7 @@ body{background:#dce2d9}
 .analysis-grid .story{padding:2.7mm}
 .analysis-grid .story h3{font-size:11pt;margin:1.3mm 0}
 .analysis-grid .story p{font-size:7.15pt;line-height:1.26;margin:1.2mm 0}
-.analysis-grid .story .source{font-size:6pt}
+.analysis-grid .story .source{font-size:6pt}\n.story .muted{font-size:5.7pt;line-height:1.15}
 .mind-center{background:var(--ink);color:white;text-align:center;padding:5mm 7mm;border-radius:2mm;margin:5mm auto 4mm;width:72%;position:relative}
 .mind-center:after{content:"";position:absolute;left:50%;bottom:-5mm;width:1px;height:5mm;background:var(--lime-dark)}
 .mind-center .kicker{color:var(--lime)}
