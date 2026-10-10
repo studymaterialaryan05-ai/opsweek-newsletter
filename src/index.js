@@ -2,6 +2,7 @@ import { getReportingPeriod } from "./utils/dates.js";
 import { collectNews } from "./news/collect.js";
 import { analyzeStories } from "./ai/analyze.js";
 import { writeNewsletter } from "./newsletter/render.js";
+import { fetchEditorialPhotos } from "./design/unsplash.js";
 import { sendNewsletter } from "./email/send.js";
 
 async function main() {
@@ -14,7 +15,8 @@ async function main() {
   }
   const analysis = await analyzeStories(collected.stories, period);
   if (!analysis.stories?.length) throw new Error("AI returned no source-validated operations stories. No email will be sent.");
-  const output = await writeNewsletter(analysis, period);
+  const visualAssets = await fetchEditorialPhotos(analysis);
+  const output = await writeNewsletter(analysis, period, visualAssets);
   console.log(`Newsletter rendered: ${output.htmlPath}; PDF pages validated: ${output.pages}`);
   const delivery = await sendNewsletter({ period, pdfPath: output.pdfPath, html: output.html, stories: analysis.stories });
   console.log(JSON.stringify({ period, feedsChecked: collected.feedsChecked, articlesCollected: collected.stories.length, selectedStories: analysis.stories.length, pdfPages: output.pages, delivery: delivery.status }, null, 2));
