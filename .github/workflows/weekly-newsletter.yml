@@ -51,7 +51,7 @@ jobs:
       - name: Generate and validate newsletter
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4.1-mini' }}
           RSS_FEEDS: ${{ vars.RSS_FEEDS }}
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
@@ -59,7 +59,7 @@ jobs:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           TEST_EMAIL_TO: ${{ secrets.TEST_EMAIL_TO }}
           TEST_EMAIL_MODE: ${{ vars.TEST_EMAIL_MODE }}
-          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://studymaterialaryan05-ai.github.io/opsweek-newsletter' }}
         run: npm start
 
       - name: Build archive index
