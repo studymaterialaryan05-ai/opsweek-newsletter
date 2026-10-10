@@ -47,7 +47,7 @@ export function conceptMapIllustration(concept = {}) {
   ];
   const cards = nodes.map(n => {
     const items = (Array.isArray(n.items) ? n.items : []).slice(0,3);
-    return `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="9" fill="#fff" stroke="${colors.line}"/><rect x="${n.x}" y="${n.y}" width="${n.w}" height="7" rx="3" fill="${n.color}"/><text x="${n.x+12}" y="${n.y+25}" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="${colors.ink}" letter-spacing="1">${n.title}</text>${items.map((item,i)=>`<circle cx="${n.x+15}" cy="${n.y+43+i*17}" r="2.5" fill="${colors.green}"/><text x="${n.x+23}" y="${n.y+47+i*17}" font-family="Arial,sans-serif" font-size="8.2" fill="${colors.muted}">${esc(String(item).slice(0,29))}`).join("")}`;
+    return `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="9" fill="#fff" stroke="${colors.line}"/><rect x="${n.x}" y="${n.y}" width="${n.w}" height="7" rx="3" fill="${n.color}"/><text x="${n.x+12}" y="${n.y+25}" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="${colors.ink}" letter-spacing="1">${n.title}</text>${items.map((item,i)=>`<circle cx="${n.x+15}" cy="${n.y+43+i*17}" r="2.5" fill="${colors.green}"/><text x="${n.x+23}" y="${n.y+47+i*17}" font-family="Arial,sans-serif" font-size="8.2" fill="${colors.muted}">${esc(String(item).slice(0,29))}</text>`).join("")}`;
   }).join("");
   const name = esc(concept.name || "Operational Resilience").slice(0,36);
   return `<svg class="concept-map-visual" viewBox="0 0 680 170" role="img" aria-label="Concept map: ${name}" xmlns="http://www.w3.org/2000/svg">
