@@ -58,6 +58,7 @@ jobs:
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           TEST_EMAIL_TO: ${{ secrets.TEST_EMAIL_TO }}
+          TEST_EMAIL_MODE: ${{ vars.TEST_EMAIL_MODE }}
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
         run: npm start
 
