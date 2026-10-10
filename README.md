@@ -1,6 +1,6 @@
 # OpsWeek: The Business Operations Brief
 
-An AI-assisted weekly newsletter connecting Indian and international business news to Operations Management concepts for first-year MBA students.
+A zero-API-cost weekly newsletter connecting Indian and international business news to Operations Management concepts for first-year MBA students using RSS feeds and transparent, template-based analysis.
 
 ## Project status
 
@@ -9,7 +9,7 @@ The initial website, Node.js pipeline, RSS collection, AI analysis, four-page ne
 ## What it does
 
 - Collects operations-related stories from configured RSS sources.
-- Summarizes stories and explains the relevant management concepts.
+- Uses RSS headlines and publisher excerpts with template-based Operations Management lenses. No paid AI API is required.
 - Generates a four-page A4 newsletter in HTML and PDF.
 - Archives editions in the repository.
 - Is scheduled to email the edition every Monday at 08:00 India Standard Time.
@@ -23,7 +23,7 @@ Create these secrets:
 
 | Secret | Purpose |
 |---|---|
-| `OPENAI_API_KEY` | API key from your OpenAI API account. API billing is separate from a ChatGPT subscription. |
+| `OPENAI_API_KEY` | Not required by the current template-based analysis engine. You may remove this secret if you want. |
 | `RESEND_API_KEY` | API key from Resend for email delivery. |
 | `EMAIL_FROM` | Verified sender, such as `OpsWeek <newsletter@yourdomain.com>`. Follow the email provider's sender verification rules. |
 | `EMAIL_TO` | Central mailing-list address or comma-separated approved recipients. |
@@ -38,7 +38,7 @@ Go to **Settings → Secrets and variables → Actions → Variables → New rep
 
 Recommended variables:
 
-- `OPENAI_MODEL`: `gpt-4.1-mini`, or another model enabled for your API account.
+- `OPENAI_MODEL`: not required by the current template-based analysis engine.
 - `PUBLIC_SITE_URL`: your GitHub Pages URL after enabling Pages.
 - `RSS_FEEDS`: optional comma-separated RSS feed URLs. If blank, the built-in feed list is used.
 - `TEST_EMAIL_MODE`: set to `true` only while testing delivery to your test address. Remove or set to `false` before normal distribution.
@@ -57,7 +57,7 @@ The website is static. API keys and private mailing-list settings must never be 
 4. Keep the dry-run option enabled.
 5. Start the workflow and inspect its logs and artifacts.
 
-The dry run should collect news, analyze stories, render HTML and PDF, and validate the PDF. It must not send email.
+The dry run should collect news, apply template-based analysis, render HTML and PDF, and validate the PDF. It must not send email. The current analysis mode does not call a paid AI API.
 
 ## Step 5: Send a test email
 
@@ -100,13 +100,13 @@ The PDF renderer checks that the PDF has exactly four pages. If validation fails
 
 ## Costs and limits
 
-GitHub Actions and GitHub Pages have plan-dependent limits. OpenAI API usage is billed separately from ChatGPT. News APIs and email providers may impose free-tier limits, usage charges, sender verification, or recipient restrictions. Check current provider pricing before relying on a free tier.
+GitHub Actions and GitHub Pages have plan-dependent limits. The current analysis pipeline does not require OpenAI API credits. GitHub Actions and GitHub Pages have plan-dependent limits; Resend/email providers may impose free-tier limits, usage charges, sender verification, or recipient restrictions. Check current provider pricing before relying on a free tier. RSS collection and template-based analysis do not guarantee complete coverage or AI-level editorial synthesis.
 
 ## Troubleshooting
 
 - **Missing API key:** check the secret name and repository scope under Settings.
 - **No stories collected:** check RSS feed URLs and whether the feeds contain relevant stories in the reporting window.
-- **AI/API error:** check API account access, usage limits, and model availability.
+- **Analysis quality:** the zero-cost mode uses RSS metadata and templates, not a generative AI model. Verify claims against the linked publisher articles.
 - **PDF validation failed:** inspect the workflow artifact, shorten content or adjust layout, then rerun.
 - **Email rejected:** verify sender, API key, recipient settings, and provider logs.
 - **Pages not published:** open Settings → Pages, choose GitHub Actions, and rerun the Pages workflow.
