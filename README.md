@@ -10,7 +10,7 @@ The initial website, Node.js pipeline, RSS collection, AI analysis, four-page ne
 
 - Collects operations-related stories from configured RSS sources.
 - Uses RSS headlines and publisher excerpts with template-based Operations Management lenses. No paid AI API is required.
-- Generates a four-page A4 newsletter in HTML and PDF.
+- Generates an editorial A4 newsletter in HTML and PDF, using Unsplash photographs when configured and original diagrams/cartoons as supporting visuals.
 - Archives editions in the repository.
 - Is scheduled to email the edition every Monday at 08:00 India Standard Time.
 - Runs through GitHub Actions without requiring a local coding environment.
@@ -29,6 +29,7 @@ Create these secrets:
 | `EMAIL_TO` | Central mailing-list address or comma-separated approved recipients. |
 | `TEST_EMAIL_TO` | Your own address for controlled test deliveries. |
 | `NEWS_API_KEY` | Optional, only if a compatible authenticated news API is added. |
+| `UNSPLASH_ACCESS_KEY` | Optional Unsplash API access key. Enables real editorial photography in the PDF; without it, the newsletter uses original vector visuals. |
 
 Never commit real API keys into source files, public issues, or documentation.
 
@@ -43,7 +44,7 @@ Recommended variables:
 - `RSS_FEEDS`: optional comma-separated RSS feed URLs. If blank, the built-in feed list is used.
 - `TEST_EMAIL_MODE`: set to `true` only while testing delivery to your test address. Remove or set to `false` before normal distribution.
 
-## Step 3: Configure GitHub Pages
+## Optional: Enable real editorial photographs with Unsplash\n\n1. Open [Unsplash Developers](https://unsplash.com/developers) and sign in.\n2. Create a new application named `OpsWeek Newsletter` and accept the API terms.\n3. Copy its Access Key. Keep the key private.\n4. In GitHub, open **Settings → Secrets and variables → Actions → New repository secret**.\n5. Name the secret `UNSPLASH_ACCESS_KEY` and paste the Access Key into the value field. Save it. Never paste the key into chat, source code, or a public issue.\n6. Run the newsletter workflow manually with **dry_run enabled**. Check the logs for `Unsplash editorial photos selected` and inspect the PDF artifact.\n\nUnsplash demo applications are limited to 50 API requests per hour. This workflow makes at most two photo-search requests per edition. It uses image URLs returned by Unsplash directly and displays photographer and Unsplash attribution. Public or commercial production use may require applying for production access. The photo integration is optional and falls back to original SVG artwork if the secret is absent or the API is unavailable. This adds no per-image AI-generation charge, though it depends on Unsplash API access and terms. See the [Unsplash API documentation](https://unsplash.com/documentation) and [API guidelines](https://help.unsplash.com/en/articles/2511245-unsplash-api-guidelines).\n\n## Step 3: Configure GitHub Pages
 
 Open **Settings → Pages** and select **GitHub Actions** as the build-and-deployment source if the option is shown. Then run the **Deploy OpsWeek website** workflow from the Actions tab.
 
@@ -85,7 +86,7 @@ Each edition covers the previous completed Monday through Sunday.
 3. **The Operations Mind Map:** one concept linked to causes, consequences, and interventions.
 4. **The Lighter Side:** original illustrative cartoons, a takeaway, and a quiz.
 
-The PDF renderer checks that the PDF has exactly four pages. If validation fails, the workflow stops before sending.
+The PDF renderer currently checks that the PDF has exactly four pages. The editorial design may be expanded in a future revision if real content needs more space. If validation fails, the workflow stops before sending.
 
 ## Editorial and reliability principles
 
