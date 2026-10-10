@@ -29,6 +29,9 @@ jobs:
           node --check src/utils/dates.js
           node --check src/news/collect.js
           node --check src/ai/analyze.js
+          node --check src/design/art-direction.js
+          node --check src/design/layout-engine.js
+          node --check src/design/visual-assets.js
           node --check src/newsletter/render.js
           node --check src/email/send.js
           node --check src/site/build.js
