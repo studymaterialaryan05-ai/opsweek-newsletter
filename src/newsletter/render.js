@@ -4,16 +4,19 @@ import { chromium } from "playwright";
 import { createArtDirection } from "../design/art-direction.js";
 import { planLayouts, assertFourPagePlan } from "../design/layout-engine.js";
 import { heroIllustration, decisionFlowIllustration, conceptMapIllustration, cartoonIllustration } from "../design/visual-assets.js";
+import { photoAttribution } from "../design/unsplash.js";
 
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const arr = values => (Array.isArray(values) ? values : []).map(esc);
 const shortDate = value => { const d = new Date(value); return Number.isNaN(d.getTime()) ? esc(value) : d.toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric",timeZone:"Asia/Kolkata"}); };
 
-export function renderNewsletter(data, period) {
+export function renderNewsletter(data, period, visualAssets = {}) {
   const stories = data.stories || [];
   const artDirection = createArtDirection({ editionDate: period.editionDate });
   const layoutPlan = assertFourPagePlan(planLayouts(stories.length));
   const lead = stories[0];
+  const photos = Array.isArray(visualAssets.photos) ? visualAssets.photos : [];
+  const photoFigure = (photo, className = "editorial-photo") => photo ? `<figure class="${className}"><img src="${esc(photo.imageUrl)}" alt="${esc(photo.alt)}" loading="eager"><figcaption>${photoAttribution(photo)}</figcaption></figure>` : "";
   const pageOne = stories.slice(0, 4);
   const pageTwo = stories.slice(4, 7);
   const storyCard = s => `<article class="story"><div class="kicker">${esc(s.region)} · ${esc(s.concept)}</div><h3>${esc(s.title)}</h3><p class="summary">${esc(s.summary)}</p><p><b>Operations lens:</b> ${esc(s.operationalIssue)}</p><p class="lesson"><b>Manager's takeaway:</b> ${esc(s.lesson)}</p><p class="source"><a href="${esc(s.url)}">${esc(s.source)} · ${shortDate(s.publishedAt)} · Read source ↗</a></p></article>`;
@@ -30,6 +33,8 @@ export function renderNewsletter(data, period) {
   const comicKinds = ["forecasting", "bottleneck", "procurement"];
   const comic = cartoons.map((c, i)=>`<article class="comic"><div class="comic-scene">${cartoonIllustration(comicKinds[i])}</div><div class="comic-tag">${esc(c[0])}</div><p>${esc(c[1])}</p><small>${esc(c[2])}</small></article>`).join("");
   const heroVisual = heroIllustration(data.theme || "Operations in motion");
+  const coverPhoto = photoFigure(photos[0], "cover-photo") || heroVisual;
+  const analysisPhoto = photoFigure(photos[1], "analysis-photo");
   const decisionVisual = decisionFlowIllustration();
   const conceptVisual = conceptMapIllustration(concept);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="opsweek-design-engine" content="${esc(artDirection.name)}"><meta name="opsweek-page-plan" content="${esc(layoutPlan.map(page => page.name).join(" | "))}"><title>OpsWeek · ${esc(period.editionDate)}</title><style>
@@ -112,20 +117,27 @@ body{background:#dce2d9}
 .quiz b{font-size:6.7pt;letter-spacing:.7px}
 .quiz p{font-size:7.5pt;line-height:1.28;margin:1.4mm 0}
 .muted{color:#667067;font-size:6.2pt;line-height:1.25}
+.editorial-photo{margin:0;position:relative;overflow:hidden;background:#e5e9df}
+.editorial-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.editorial-photo figcaption{font-size:6pt;line-height:1.2;color:#58665b;background:#f0f2e9;padding:1.5mm 2mm}
+.editorial-photo figcaption a{color:#38533d;font-weight:700;text-decoration:none}
+.cover-photo{height:48mm;margin:3mm 0 2mm;border-radius:1.5mm}
+.cover-photo img{object-position:center 48%}
+.analysis-photo{height:38mm;margin:3mm 0;border-radius:1.5mm}
 .page3-space{margin-top:4mm}.hero-illustration{display:block;width:100%;height:27mm;margin:3mm 0 2mm}.decision-flow{display:block;width:100%;height:22mm;margin:2mm 0 0}.concept-map-visual{display:block;width:100%;height:52mm;margin:5mm 0 4mm}.cartoon-art{display:block;width:100%;height:31mm}.comic:nth-child(3) .cartoon-art{height:24mm}
 @media print{html,body{width:210mm;background:white}.page{margin:0;box-shadow:none;break-after:page}.page:last-child{break-after:auto}}
 </style></head><body>
-<section class="page"><div class="topline"><span>OPS<span style="font-weight:400">WEEK</span> / THE BUSINESS OPERATIONS BRIEF</span><span>EDITION · ${esc(period.editionDate)}</span></div><div class="brand">OPS<span>WEEK</span></div><div class="dek">REAL BUSINESS. OPERATIONAL THINKING. EVERY MONDAY.</div><h1 class="headline">${esc(data.theme || "The week through an operations lens")}</h1>${heroVisual}<div class="leadbox"><div class="kicker">THE WEEK IN CONTEXT · ${esc(period.start)} TO ${esc(period.end)}</div><h2>${esc(lead?.title || "A quieter week for operations")}</h2><p>${esc(data.editorial || lead?.summary || "This edition connects business events to practical Operations Management lessons.")}</p>${lead ? `<p><a href="${esc(lead.url)}">Source: ${esc(lead.source)} ↗</a></p>` : ""}</div><div class="story-grid">${pageOne.slice(1).map(storyCard).join("") || '<p>Not enough verified stories were available for this reporting period. The editorial workflow will not invent news to fill space.</p>'}</div><div class="pagefoot"><span>News summaries are original. Facts and claims should be checked against linked sources.</span><span>01 / THE BRIEF</span></div></section>
-<section class="page"><div class="topline"><span>OPS<span style="font-weight:400">WEEK</span> / ANALYSIS</span><span>INSIDE THE OPERATION</span></div><h1 class="page-title">The decision behind<br>the headline.</h1><p class="intro">Operations is where strategy meets the real world: time, capacity, people, suppliers, quality, and cost. Here is how this week's events connect to management concepts.</p><div class="concept-band"><div class="kicker">THIS WEEK'S LEARNING THEME</div><h2>${esc(concept.name || "Operational visibility")}</h2><p>${esc(concept.definition || "The ability to understand what is happening across a process and use that information to make better decisions.")}</p>${decisionVisual}</div><div class="analysis-grid">${pageOne.slice(1,3).concat(pageTwo).slice(0,4).map(storyCard).join("") || "<p>No case studies passed the evidence checks for this edition.</p>"}</div><div class="pagefoot"><span>Look for the trade-off, not just the outcome.</span><span>02 / ANALYSIS</span></div></section>
+<section class="page"><div class="topline"><span>OPS<span style="font-weight:400">WEEK</span> / THE BUSINESS OPERATIONS BRIEF</span><span>EDITION · ${esc(period.editionDate)}</span></div><div class="brand">OPS<span>WEEK</span></div><div class="dek">REAL BUSINESS. OPERATIONAL THINKING. EVERY MONDAY.</div><h1 class="headline">${esc(data.theme || "The week through an operations lens")}</h1>${coverPhoto}<div class="leadbox"><div class="kicker">THE WEEK IN CONTEXT · ${esc(period.start)} TO ${esc(period.end)}</div><h2>${esc(lead?.title || "A quieter week for operations")}</h2><p>${esc(data.editorial || lead?.summary || "This edition connects business events to practical Operations Management lessons.")}</p>${lead ? `<p><a href="${esc(lead.url)}">Source: ${esc(lead.source)} ↗</a></p>` : ""}</div><div class="story-grid">${pageOne.slice(1).map(storyCard).join("") || '<p>Not enough verified stories were available for this reporting period. The editorial workflow will not invent news to fill space.</p>'}</div><div class="pagefoot"><span>News summaries are original. Facts and claims should be checked against linked sources.</span><span>01 / THE BRIEF</span></div></section>
+<section class="page"><div class="topline"><span>OPS<span style="font-weight:400">WEEK</span> / ANALYSIS</span><span>INSIDE THE OPERATION</span></div><h1 class="page-title">The decision behind<br>the headline.</h1><p class="intro">Operations is where strategy meets the real world: time, capacity, people, suppliers, quality, and cost. Here is how this week's events connect to management concepts.</p><div class="concept-band"><div class="kicker">THIS WEEK'S LEARNING THEME</div><h2>${esc(concept.name || "Operational visibility")}</h2><p>${esc(concept.definition || "The ability to understand what is happening across a process and use that information to make better decisions.")}</p>${decisionVisual}</div>${analysisPhoto}<div class="analysis-grid">${pageOne.slice(1,3).concat(pageTwo).slice(0,4).map(storyCard).join("") || "<p>No case studies passed the evidence checks for this edition.</p>"}</div><div class="pagefoot"><span>Look for the trade-off, not just the outcome.</span><span>02 / ANALYSIS</span></div></section>
 <section class="page"><div class="topline"><span>OPS<span style="font-weight:400">WEEK</span> / LEARN VISUALLY</span><span>CONCEPT MAP</span></div><h1 class="page-title">One concept.<br>Connected thinking.</h1><p class="intro">Use this map to move from definition to causes, consequences, and possible interventions.</p>${conceptVisual}<div class="news-connection"><b>NEWS CONNECTION</b><br>${esc(concept.newsConnection || "Use one of this week's stories to identify the operational problem, the evidence available, and the trade-off faced by the manager.")}<br><br><b>TAKEAWAY:</b> ${esc(concept.takeaway || "Measure the process before trying to optimize it.")}</div><p class="muted page3-space">Concept maps simplify complex systems for learning. Actual management decisions require case-specific evidence.</p><div class="pagefoot"><span>Connect the concept to a real business decision.</span><span>03 / MIND MAP</span></div></section>
 <section class="page"><div class="topline"><span>OPS<span style="font-weight:400">WEEK</span> / THE LIGHTER SIDE</span><span>LEARN IT. REMEMBER IT.</span></div><h1 class="page-title">Operations is serious.<br>Managers are human.</h1><p class="intro">Three familiar moments from the world of processes, planning, and procurement.</p><div class="comic-grid">${comic}</div><div class="takeaway"><div class="kicker">THE WEEKLY TAKEAWAY</div><h2>Fix the system, not just the symptom.</h2><p>Before asking people to work harder, examine the process, constraints, incentives, information, and feedback loops shaping their decisions.</p></div><div class="quiz"><b>THE 30-SECOND OPS QUIZ</b><p>A warehouse has excess stock of slow-moving products but keeps running out of its bestsellers. Which topic would you investigate first?</p><p><b>A.</b> Inventory classification and demand forecasting &nbsp; <b>B.</b> Office seating &nbsp; <b>C.</b> Logo design</p><p class="muted">Answer: A. Investigate demand patterns, replenishment rules, lead times, and inventory segmentation.</p></div><p class="muted" style="margin-top:4mm">Cartoons in this edition are original illustrative scenarios, not claims about specific companies.</p><div class="pagefoot"><span>Keep asking: what is the process telling us?</span><span>04 / THE LIGHTER SIDE</span></div></section>
 </body></html>`;
 }
 
-export async function writeNewsletter(data, period) {
+export async function writeNewsletter(data, period, visualAssets = {}) {
   const dateDir = path.join("newsletters", period.editionDate);
   await fs.mkdir(dateDir, { recursive: true });
-  const html = renderNewsletter(data, period);
+  const html = renderNewsletter(data, period, visualAssets);
   const htmlPath = path.join(dateDir, "index.html");
   const pdfPath = path.join(dateDir, "newsletter.pdf");
   await fs.writeFile(htmlPath, html, "utf8");
