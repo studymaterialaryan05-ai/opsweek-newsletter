@@ -8,6 +8,11 @@ on:
         required: true
         default: true
         type: boolean
+      test_email:
+        description: "For manual live sends, send only to TEST_EMAIL_TO instead of the mailing list"
+        required: true
+        default: true
+        type: boolean
   schedule:
     - cron: "30 2 * * 1"
 
@@ -58,7 +63,7 @@ jobs:
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           TEST_EMAIL_TO: ${{ secrets.TEST_EMAIL_TO }}
-          TEST_EMAIL_MODE: ${{ vars.TEST_EMAIL_MODE }}
+          TEST_EMAIL_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == false && inputs.test_email == true && 'true' || vars.TEST_EMAIL_MODE }}
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://studymaterialaryan05-ai.github.io/opsweek-newsletter' }}
         run: npm start
 
