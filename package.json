@@ -1,0 +1,21 @@
+{
+  "name": "opsweek-newsletter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Automated weekly business operations newsletter for MBA students",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "build:site": "node src/site/build.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "openai": "^5.12.2",
+    "playwright": "^1.55.0",
+    "resend": "^6.0.2",
+    "rss-parser": "^3.13.0"
+  }
+}
